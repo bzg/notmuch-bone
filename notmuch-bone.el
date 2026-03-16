@@ -167,7 +167,7 @@ A report is open when its status is >= 4."
          (votes    (plist-get info :votes))
          (deadline (plist-get info :deadline))
          (days     (notmuch-bone--deadline-days deadline))
-         (pri-str  (format "P%d" priority))
+         (pri-str  (pcase priority (3 "A") (2 "B") (1 "C") (_ " ")))
          (dl-str   (if days (format "D%+d" days) ""))
          (dl-pad   (string-pad dl-str notmuch-bone-deadline-width))
          (votes-str (if votes (format "[%s]" votes) ""))
