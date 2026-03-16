@@ -1,0 +1,26 @@
+* notmuch-bone.el --- Highlight BARK reports in notmuch
+
+=notmuch-bone= highlights notmuch emails whose =Message-Id= matches an
+open [[https://codeberg.org/bzg/bark][BARK]] report. It reads the same =reports.json= sources as [[https://codeberg.org/bzg/bone][bone]].
+
+** Requirements
+
+- =~/.config/bone/sources.json= (a JSON array of =reports.json= paths or
+  URLs, shared with bone)
+- =notmuch-bone= supports =reports.json= format-version =0.2.2=.
+
+** Commands
+
+- =M-x notmuch-bone= — Apply overlays to the current summary buffer.
+- =M-x notmuch-bone-clear= — Remove all =notmuch-bone= overlays.
+- =M-x notmuch-bone-topic= — Filter reports by selected topic.
+
+** License
+
+Copyright © 2026 Bastien Guerry
+
+=notmuch-bone.el= is published under the terms of the GNU General Public
+License as the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+
