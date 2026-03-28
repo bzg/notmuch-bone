@@ -52,8 +52,8 @@
   "Face for right-margin annotations (type, flags, priority, votes)."
   :group 'notmuch-bone)
 
-(defconst notmuch-bone-supported-bark-format "0.2.2"
-  "Supported BONE reports.json bark-format.")
+(defconst notmuch-bone-minimum-bark-format "0.2.4"
+  "Minimum supported BONE reports.json bark-format.")
 
 (defvar notmuch-bone-votes-width 7
   "Fixed width for the votes column.")
@@ -103,9 +103,9 @@ A report is open when its status is >= 4."
          (fv (alist-get 'bark-format data))
          (reports (alist-get 'reports data))
          (result '()))
-    (when (and fv (not (equal fv notmuch-bone-supported-bark-format)))
-      (message "notmuch-bone: %s has bark-format %s, supported is %s"
-               source fv notmuch-bone-supported-bark-format))
+    (when (and fv (version< fv notmuch-bone-minimum-bark-format))
+      (message "notmuch-bone: %s has bark-format %s, minimum supported is %s"
+               source fv notmuch-bone-minimum-bark-format))
     (dolist (r reports result)
       (let ((mid          (alist-get 'message-id r))
             (status       (alist-get 'status r))
