@@ -52,7 +52,7 @@
   "Face for right-margin annotations (type, flags, priority, votes)."
   :group 'notmuch-bone)
 
-(defconst notmuch-bone-minimum-bark-format "0.2.4"
+(defconst notmuch-bone-minimum-bark-format "0.4.0"
   "Minimum supported BONE reports.json bark-format.")
 
 (defvar notmuch-bone-votes-width 7
@@ -60,6 +60,9 @@
 
 (defvar notmuch-bone-deadline-width 5
   "Fixed width for the deadline column (e.g. \"D-2  \" or \"     \").")
+
+(defvar notmuch-bone-expiry-width 5
+  "Fixed width for the expiry column (e.g. \"E-2  \" or \"     \").")
 
 ;;; --- Data loading ---
 
@@ -97,7 +100,8 @@
 
 (defun notmuch-bone--extract-open-reports (source)
   "Extract open reports from SOURCE (local path or HTTP URL).
-Each entry is (MESSAGE-ID . (:type T :flags F :priority P :votes V :deadline D :topic TOP)).
+Each entry is (MESSAGE-ID . (:type T :flags F :priority P :votes V
+:deadline D :expiry E :last-activity LA :topic TOP)).
 A report is open when its status is >= 4."
   (let* ((data (notmuch-bone--read-json source))
          (fv (alist-get 'bark-format data))
@@ -107,30 +111,35 @@ A report is open when its status is >= 4."
       (message "notmuch-bone: %s has bark-format %s, minimum supported is %s"
                source fv notmuch-bone-minimum-bark-format))
     (dolist (r reports result)
-      (let ((mid          (alist-get 'message-id r))
-            (status       (alist-get 'status r))
-            (type         (alist-get 'type r))
-            (acked        (alist-get 'acked r))
-            (owned        (alist-get 'owned r))
-            (closed       (alist-get 'closed r))
-            (close-reason (alist-get 'close-reason r))
-            (priority     (alist-get 'priority r))
-            (votes        (alist-get 'votes r))
-            (deadline     (alist-get 'deadline r))
-            (topic        (alist-get 'topic r)))
+      (let ((mid            (alist-get 'message-id r))
+            (status         (alist-get 'status r))
+            (type           (alist-get 'type r))
+            (acked          (alist-get 'acked r))
+            (owned          (alist-get 'owned r))
+            (closed         (alist-get 'closed r))
+            (close-reason   (alist-get 'close-reason r))
+            (priority       (alist-get 'priority r))
+            (votes          (alist-get 'votes r))
+            (deadline       (alist-get 'deadline r))
+            (expiry         (alist-get 'expiry r))
+            (last-activity  (alist-get 'last-activity r))
+            (topic          (alist-get 'topic r)))
         (when (and mid (numberp status) (>= status 4))
           (let ((flags (concat (if acked "A" "-")
                                (if owned "O" "-")
                                (pcase close-reason
-                                 ("canceled" "C")
-                                 ("resolved" "R")
-                                 ("expired"  "E")
+                                 ("canceled"   "C")
+                                 ("resolved"   "R")
+                                 ("expired"    "E")
+                                 ("superseded" "S")
                                  (_ (if closed "R" "-"))))))
             (push (cons mid (list :type (or type "bug")
                                   :flags flags
                                   :priority (or priority 0)
                                   :votes votes
                                   :deadline deadline
+                                  :expiry expiry
+                                  :last-activity last-activity
                                   :topic topic))
                   result)))))))
 
@@ -166,13 +175,17 @@ A report is open when its status is >= 4."
          (priority (plist-get info :priority))
          (votes    (plist-get info :votes))
          (deadline (plist-get info :deadline))
-         (days     (notmuch-bone--deadline-days deadline))
+         (expiry   (plist-get info :expiry))
+         (dl-days  (notmuch-bone--deadline-days deadline))
+         (ex-days  (notmuch-bone--deadline-days expiry))
          (pri-str  (pcase priority (3 "A") (2 "B") (1 "C") (_ " ")))
-         (dl-str   (if days (format "D%+d" days) ""))
+         (dl-str   (if dl-days (format "D%+d" dl-days) ""))
          (dl-pad   (string-pad dl-str notmuch-bone-deadline-width))
+         (ex-str   (if ex-days (format "E%+d" ex-days) ""))
+         (ex-pad   (string-pad ex-str notmuch-bone-expiry-width))
          (votes-str (if votes (format "[%s]" votes) ""))
          (votes-pad (string-pad votes-str notmuch-bone-votes-width))
-         (tag      (concat type " " flags " " pri-str " " dl-pad votes-pad)))
+         (tag      (concat type " " flags " " pri-str " " dl-pad ex-pad votes-pad)))
     tag))
 
 ;;; --- Query building ---
