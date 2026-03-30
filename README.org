@@ -1,21 +1,28 @@
-* notmuch-bone.el --- Highlight BARK reports in notmuch
+#+title: notmuch-bone.el --- Highlight BARK reports in notmuch
 
 =notmuch-bone= highlights notmuch emails whose =Message-Id= matches an
 open [[https://codeberg.org/bzg/bark][BARK]] report. It reads the same =reports.json= sources as [[https://codeberg.org/bzg/bone][bone]].
 
-** Requirements
+* Requirements
 
 - =~/.config/bone/sources.json= (a JSON array of =reports.json= paths or
   URLs, shared with bone)
 - =notmuch-bone= supports =reports.json= bark-format =0.4.0=.
 
-** Commands
+* Commands
 
 - =M-x notmuch-bone= — Apply overlays to the current summary buffer.
 - =M-x notmuch-bone-clear= — Remove all =notmuch-bone= overlays.
 - =M-x notmuch-bone-topic= — Filter reports by selected topic.
 
-** License
+* Contributing
+
+- Send a [[mailto:~bzg/barkyard@lists.sr.ht?subject=\[BUG\] notmuch-bone: <SHORT EXPLICIT BUG DESCRIPTION>][bug report]]
+- Send a [[mailto:~bzg/barkyard@lists.sr.ht?subject=\[PATCH\] notmuch-bone: <COMMIT SUMMARY>][patch]] (please use =git format-patch=)
+- Send a [[mailto:~bzg/barkyard@lists.sr.ht?subject=\[FR\] notmuch-bone: <FEATURE REQUEST>][feature request]]
+- Share any [[mailto:~bzg/barkyard@lists.sr.ht?subject=notmuch-bone: <ANYTHING>][other question or idea]]
+
+* License
 
 Copyright © 2026 Bastien Guerry
 
