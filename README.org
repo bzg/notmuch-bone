@@ -17,10 +17,10 @@ open [[https://codeberg.org/bzg/bark][BARK]] report. It reads the same =reports.
 
 * Contributing
 
-- Send a [[mailto:~bzg/barkyard@lists.sr.ht?subject=\[BUG\] notmuch-bone: <SHORT EXPLICIT BUG DESCRIPTION>][bug report]]
-- Send a [[mailto:~bzg/barkyard@lists.sr.ht?subject=\[PATCH\] notmuch-bone: <COMMIT SUMMARY>][patch]] (please use =git format-patch=)
-- Send a [[mailto:~bzg/barkyard@lists.sr.ht?subject=\[FR\] notmuch-bone: <FEATURE REQUEST>][feature request]]
-- Share any [[mailto:~bzg/barkyard@lists.sr.ht?subject=notmuch-bone: <ANYTHING>][other question or idea]]
+- Send a [[mailto:~bzg/barkyard@lists.sr.ht][bug report]] with =[BUG] notmuch-bone: <SHORT EXPLICIT BUG DESCRIPTION>=
+- Send a [[mailto:~bzg/barkyard@lists.sr.ht][patch]] with =[PATCH] notmuch-bone: <COMMIT SUMMARY>=
+- Send a [[mailto:~bzg/barkyard@lists.sr.ht][feature request]] with =[FR] notmuch-bone: <FEATURE REQUEST>=
+- Share any [[mailto:~bzg/barkyard@lists.sr.ht <ANYTHING>][other question or idea]]
 
 You can also [[mailto:bzg@bzg.fr][send me an email]] and support my work on [[https://liberapay.com/bzg/][liberapay]].
 
