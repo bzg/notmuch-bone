@@ -1,5 +1,7 @@
 #+title: notmuch-bone.el --- Highlight BARK reports in notmuch
 
+[[https://intver.org/][https://img.shields.io/badge/versioning-intver.org-blue.svg?style=for-the-badge]]
+
 =notmuch-bone= highlights notmuch emails whose =Message-Id= matches an
 open [[https://codeberg.org/bzg/bark][BARK]] report. It reads the same =reports.json= sources as [[https://codeberg.org/bzg/bone][bone]].
 
@@ -23,6 +25,14 @@ open [[https://codeberg.org/bzg/bark][BARK]] report. It reads the same =reports.
 - Share any [[mailto:~bzg/barkyard@lists.sr.ht <ANYTHING>][other question or idea]]
 
 You can also [[mailto:bzg@bzg.fr][send me an email]] and support my work on [[https://liberapay.com/bzg/][liberapay]].
+
+* Intentional Versioning
+
+This project uses [[https://intver.org][Intentional Versioning]], here are the three audiences:
+
+- =x= : end users who use notmuch-bone
+- =y= : external packagers
+- =z= : contributors to the codebase
 
 * License
 
