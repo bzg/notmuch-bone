@@ -38,8 +38,16 @@
 (require 'cl-lib)
 (require 'notmuch)
 
-(defvar notmuch-bone-sources-file "~/.config/bone/sources.json"
-  "Path to bone sources.json, a JSON array of reports.json URIs.")
+(defvar notmuch-bone-config-file "~/.config/bone/config.edn"
+  "Path to bone config.edn.
+The file is a Clojure/EDN map that may contain:
+  :addresses    vector of user email addresses (strings)
+  :skip-columns vector of column names to skip (strings)
+  :sources      vector of maps, each with a :url key pointing to a
+                reports.json URI (local path or http(s) URL).")
+
+(defvar notmuch-bone-addresses nil
+  "List of user email addresses, populated from `notmuch-bone-config-file'.")
 
 (defface notmuch-bone-face
   '((((background light)) :background "#e8e8e8")
@@ -72,11 +80,63 @@
       (url-unhex-string (substring uri 7))
     uri))
 
+(defun notmuch-bone--edn-strings-in (key text)
+  "Return all double-quoted strings inside the EDN vector for KEY in TEXT.
+KEY is a string like \":addresses\".  Returns nil if KEY is absent."
+  (when (string-match (concat (regexp-quote key) "[[:space:]]*\\[") text)
+    (let ((start (match-end 0))
+          (depth 1)
+          (i (match-end 0))
+          (len (length text))
+          end)
+      (while (and (< i len) (> depth 0))
+        (let ((c (aref text i)))
+          (cond ((eq c ?\[) (setq depth (1+ depth)))
+                ((eq c ?\]) (setq depth (1- depth)))))
+        (setq i (1+ i)))
+      (setq end (1- i))
+      (let ((sub (substring text start end))
+            (acc nil)
+            (pos 0))
+        (while (string-match "\"\\(\\(?:[^\"\\\\]\\|\\\\.\\)*\\)\"" sub pos)
+          (push (match-string 1 sub) acc)
+          (setq pos (match-end 0)))
+        (nreverse acc)))))
+
+(defun notmuch-bone--load-config ()
+  "Parse `notmuch-bone-config-file' and return (ADDRESSES . SOURCE-URIS).
+SOURCE-URIS is a list of reports.json URIs (file paths or URLs)
+extracted from each :url inside the :sources vector."
+  (let ((file (expand-file-name notmuch-bone-config-file)))
+    (unless (file-readable-p file)
+      (error "notmuch-bone: cannot read config %s" file))
+    (let* ((text (with-temp-buffer
+                   (insert-file-contents file)
+                   (buffer-string)))
+           (addresses (notmuch-bone--edn-strings-in ":addresses" text))
+           ;; The :sources vector contains maps; pull every :url "..." inside it.
+           (sources-region
+            (when (string-match
+                   ":sources[[:space:]]*\\[\\(\\(?:[^][]\\|\\[[^][]*\\]\\)*\\)\\]"
+                   text)
+              (match-string 1 text)))
+           (urls nil))
+      (when sources-region
+        (let ((pos 0))
+          (while (string-match
+                  ":url[[:space:]]+\"\\(\\(?:[^\"\\\\]\\|\\\\.\\)*\\)\""
+                  sources-region pos)
+            (push (match-string 1 sources-region) urls)
+            (setq pos (match-end 0)))))
+      (cons addresses
+            (mapcar #'notmuch-bone--uri-to-path (nreverse urls))))))
+
 (defun notmuch-bone--load-sources ()
-  "Return list of reports.json paths from `notmuch-bone-sources-file'."
-  (let ((json-array-type 'list))
-    (mapcar #'notmuch-bone--uri-to-path
-            (json-read-file (expand-file-name notmuch-bone-sources-file)))))
+  "Return list of reports.json URIs from `notmuch-bone-config-file'.
+As a side effect, populates `notmuch-bone-addresses'."
+  (let ((cfg (notmuch-bone--load-config)))
+    (setq notmuch-bone-addresses (car cfg))
+    (cdr cfg)))
 
 (defun notmuch-bone--http-url-p (source)
   "Return non-nil if SOURCE is an HTTP(S) URL."
